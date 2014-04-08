@@ -3,6 +3,8 @@
 
     <string name="app_name">Emrald AR</string>
     <string name="activity_recent_name">Recent Activity</string>
+    <string name="activity_view_name">Activity View</string>
+    
     <string name="action_settings">Settings</string>
     <string name="action_scan_qr">scan QR</string>
     

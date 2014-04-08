@@ -29,6 +29,7 @@ import android.widget.Toast;
 
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
+import com.univ.helsinki.app.activities.ViewActivity;
 import com.univ.helsinki.app.adapter.RecentActivityAdapter;
 import com.univ.helsinki.app.core.Feed;
 import com.univ.helsinki.app.db.RecentActivityDataSource;
@@ -89,7 +90,10 @@ public class MainActivity extends Activity {
 			@Override
 			public void onItemClick(AdapterView<?> adapter, View view, int position, long id) {
 				// TODO Auto-generated method stub
-				adapter.showContextMenuForChild(view);
+				//adapter.showContextMenuForChild(view);
+				Intent intent = new Intent(MainActivity.this, ViewActivity.class);
+				intent.putExtra(ViewActivity.EXTRAS_ROW_ID, position-1);
+				startActivity(intent);
 			}
 		});
 		
@@ -267,8 +271,6 @@ public class MainActivity extends Activity {
 			String scanFormat = scanningResult.getFormatName();
 
 			if ((scanFormat != null) && scanFormat.trim().length() > 0) {
-				mDatasource = new RecentActivityDataSource(this);
-				mDatasource.open();
 
 				mFeedList.add(mDatasource.createFeed(scanFormat, scanContent));
 				
