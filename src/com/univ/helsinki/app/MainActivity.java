@@ -3,22 +3,22 @@ package com.univ.helsinki.app;
 import java.util.List;
 
 import android.app.Activity;
-import android.app.Fragment;
-import android.app.FragmentManager;
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.media.AudioManager;
+import android.media.MediaPlayer;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -27,11 +27,9 @@ import android.widget.Toast;
 
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
-import com.univ.helsinki.app.activities.RecentActivity;
 import com.univ.helsinki.app.adapter.RecentActivityAdapter;
 import com.univ.helsinki.app.core.Feed;
 import com.univ.helsinki.app.db.RecentActivityDataSource;
-import com.univ.helsinki.app.util.Constant;
 
 public class MainActivity extends Activity {
 
@@ -54,11 +52,15 @@ public class MainActivity extends Activity {
 	private RecentActivityAdapter mAdapter;
 	
 	private List<Feed> mFeedList;
+	
+	private MediaPlayer mPlayer;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
+		
+		setVolumeControlStream(AudioManager.STREAM_MUSIC);
 
 		initSideDrawer(savedInstanceState);
 
@@ -66,13 +68,30 @@ public class MainActivity extends Activity {
 		mDatasource.open();
 
 		mListview = (ListView) findViewById(R.id.listview);
+		mListview.setVisibility(View.INVISIBLE);
 
 		mFeedList = mDatasource.getAllFeeds();
+		
+		if(mFeedList.size() > 0){
+			mListview.setVisibility(View.VISIBLE);
+			findViewById(R.id.emptystub).setVisibility(View.GONE);
+		}
+		
 		mAdapter = new RecentActivityAdapter(MainActivity.this, mFeedList);
 		
 		mListview.setAdapter(mAdapter);
 
 		registerForContextMenu(mListview);
+		
+		// Show contextview on item click
+		mListview.setOnItemClickListener(new OnItemClickListener() {
+
+			@Override
+			public void onItemClick(AdapterView<?> adapter, View view, int position, long id) {
+				// TODO Auto-generated method stub
+				adapter.showContextMenuForChild(view);
+			}
+		});
 	}
 
 	private void initSideDrawer(Bundle savedInstanceState) {
@@ -189,9 +208,34 @@ public class MainActivity extends Activity {
 		if (menuItemName.equalsIgnoreCase("Share")) {
 			shareIt(mFeedList.get(info.position).getTitle(), 
 					mFeedList.get(info.position).getContent());
+		}else if (menuItemName.equalsIgnoreCase("delete")) {
+			
+			long id = mFeedList.get(info.position).getId();
+			
+			if(mDatasource != null){
+				mDatasource.delete(id);
+			}
+			
+			mFeedList.remove(info.position);
+			mAdapter.notifyDataSetChanged();
+		}else if (menuItemName.contains("More")) {
+			String inURL = "https://en.wikipedia.org/wiki/" + mFeedList.get(info.position).getTitle();
+			    
+			Intent browse = new Intent( Intent.ACTION_VIEW , Uri.parse( inURL ) );
+			startActivity( browse );
+		}else if (menuItemName.contains("Play")) {
+			
+			int resId = R.raw.a;
+			
+			// Release any resources from previous MediaPlayer
+			if (mPlayer !=null) {
+				mPlayer.release();
+			}
+			// Create a new MediaPlayer to play this sound
+			mPlayer = MediaPlayer.create(this, resId);
+			mPlayer.start();
+			
 		}
-
-		// list item name :: info.position
 
 		return true;
 	}
@@ -225,6 +269,10 @@ public class MainActivity extends Activity {
 				
 				mAdapter.notifyDataSetChanged();
 				
+				if(mFeedList.size() > 0){
+					mListview.setVisibility(View.VISIBLE);
+					findViewById(R.id.emptystub).setVisibility(View.GONE);
+				}
 			}  
 		} else {
 			Toast toast = Toast.makeText(getApplicationContext(), "No scan data received!", Toast.LENGTH_SHORT);
@@ -284,6 +332,14 @@ public class MainActivity extends Activity {
 		if (mDatasource != null)
 			mDatasource.close();
 		super.onPause();
+	}
+	
+	@Override
+	protected void onDestroy() {
+		if(null != mPlayer){
+			mPlayer.release();
+		}
+		super.onDestroy();
 	}
 
 }

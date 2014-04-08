@@ -30,13 +30,22 @@
         android:id="@+id/content_frame"
         android:layout_width="match_parent"
         android:layout_height="match_parent" >
-
+        
+        <ImageView
+            android:id="@+id/emptystub"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:src="@drawable/header" 
+            android:layout_margin="2dp" />
+        
         <ListView
         android:id="@+id/listview"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:text="No Recent Activity"
         android:divider="@android:color/white" />
+        
+        
          
     </FrameLayout>
 

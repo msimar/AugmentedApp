@@ -98,4 +98,9 @@ public class RecentActivityDataSource {
 
 		return feed;
 	}
+	
+	public void delete(long id){
+        String string =String.valueOf(id);
+        database.execSQL("DELETE FROM " + FeedEntry.TABLE_NAME + " WHERE " + FeedEntry._ID + "= '" + string + "'");
+    }
 }
