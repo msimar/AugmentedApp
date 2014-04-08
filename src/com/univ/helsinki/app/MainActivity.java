@@ -227,6 +227,7 @@ public class MainActivity extends Activity {
 			
 			mFeedList.remove(info.position);
 			mAdapter.notifyDataSetChanged();
+			
 		}else if (menuItemName.contains("More")) {
 			String inURL = "https://en.wikipedia.org/wiki/" + mFeedList.get(info.position).getTitle();
 			    
@@ -271,8 +272,13 @@ public class MainActivity extends Activity {
 			String scanFormat = scanningResult.getFormatName();
 
 			if ((scanFormat != null) && scanFormat.trim().length() > 0) {
+				
+				if(mDatasource == null)
+					mDatasource = new RecentActivityDataSource(MainActivity.this);
+				
+				mDatasource.open();
 
-				mFeedList.add(mDatasource.createFeed(scanFormat, scanContent));
+				mFeedList.add(0,mDatasource.createFeed(scanFormat, scanContent));
 				
 				mAdapter.notifyDataSetChanged();
 				
