@@ -69,7 +69,7 @@ public class RecentActivityDataSource {
 		List<Feed> feeds = new ArrayList<Feed>();
 
 		Cursor cursor = database.query(FeedEntry.TABLE_NAME, allColumns, null,
-				null, null, null, null);
+				null, null, null, FeedEntry.COLUMN_NAME_UPDATED + " DESC");
 		
 		if(cursor == null)return null;
 

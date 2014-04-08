@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -18,7 +19,6 @@ public class MainActivity extends Activity {
 
 	private EditText feildTitle;
 	private EditText feildContent;
-	private Button btnScan;
 	private Button btnRecent;
 
 	private RecentActivityDataSource mDatasource;
@@ -30,19 +30,7 @@ public class MainActivity extends Activity {
 
 		feildTitle = (EditText) findViewById(R.id.feildTitle);
 		feildContent = (EditText) findViewById(R.id.feildContent);
-		btnScan = (Button) findViewById(R.id.btnScan);
 		btnRecent = (Button) findViewById(R.id.btnRecent);
-
-		btnScan.setOnClickListener(new View.OnClickListener() {
-
-			@Override
-			public void onClick(View v) {
-
-				IntentIntegrator scanIntegrator = new IntentIntegrator(
-						MainActivity.this);
-				scanIntegrator.initiateScan();
-			}
-		});
 
 		btnRecent.setOnClickListener(new View.OnClickListener() {
 
@@ -68,8 +56,8 @@ public class MainActivity extends Activity {
 			String scanFormat = scanningResult.getFormatName();
 
 			if ((scanFormat != null) && scanFormat.trim().length() > 0) {
-				feildTitle.setText("FORMAT: " + scanFormat);
-				feildContent.setText("CONTENT: " + scanContent);
+				feildTitle.setText("" + scanFormat);
+				feildContent.setText("" + scanContent);
 
 				mDatasource = new RecentActivityDataSource(this);
 				mDatasource.open();
@@ -98,6 +86,23 @@ public class MainActivity extends Activity {
 		// Inflate the menu; this adds items to the action bar if it is present.
 		getMenuInflater().inflate(R.menu.main, menu);
 		return true;
+	}
+	
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+	    // Handle presses on the action bar items
+	    switch (item.getItemId()) {
+	        case R.id.action_scan_qr:
+	        	IntentIntegrator scanIntegrator = new IntentIntegrator(
+						MainActivity.this);
+				scanIntegrator.initiateScan();
+	            return true;
+	        case R.id.action_settings:
+	            //openSettings();
+	            return true;
+	        default:
+	            return super.onOptionsItemSelected(item);
+	    }
 	}
 
 }

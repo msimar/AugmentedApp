@@ -4,6 +4,7 @@
     <string name="app_name">Emrald</string>
     <string name="activity_recent_name">Recent Activity</string>
     <string name="action_settings">Settings</string>
+    <string name="action_scan_qr">scan QR</string>
     <string name="hello_world">Hello world!</string>
 
 </resources>

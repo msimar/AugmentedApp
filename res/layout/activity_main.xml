@@ -24,13 +24,6 @@
         android:hint="Scan Content" />
 
     <Button
-        android:id="@+id/btnScan"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_above="@+id/btnRecent"
-        android:text="Scan" />
-
-    <Button
         android:id="@+id/btnRecent"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
