@@ -1,19 +1,37 @@
 package com.univ.helsinki.app;
 
+import java.util.List;
+
 import android.app.Activity;
+import android.app.Fragment;
+import android.app.FragmentManager;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.os.Bundle;
+import android.support.v4.app.ActionBarDrawerToggle;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
+import android.view.ContextMenu;
+import android.view.ContextMenu.ContextMenuInfo;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ListView;
 import android.widget.Toast;
 
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 import com.univ.helsinki.app.activities.RecentActivity;
+import com.univ.helsinki.app.adapter.RecentActivityAdapter;
+import com.univ.helsinki.app.core.Feed;
 import com.univ.helsinki.app.db.RecentActivityDataSource;
+import com.univ.helsinki.app.util.Constant;
 
 public class MainActivity extends Activity {
 
@@ -23,24 +41,168 @@ public class MainActivity extends Activity {
 
 	private RecentActivityDataSource mDatasource;
 
+	private DrawerLayout mDrawerLayout;
+	private ListView mDrawerList;
+
+	private String[] mSidePanelTitles;
+
+	private ActionBarDrawerToggle mDrawerToggle;
+	private CharSequence mDrawerTitle;
+	private CharSequence mTitle;
+	
+	private ListView mListview;
+	private RecentActivityAdapter mAdapter;
+	
+	private List<Feed> mFeedList;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 
-		feildTitle = (EditText) findViewById(R.id.feildTitle);
-		feildContent = (EditText) findViewById(R.id.feildContent);
-		btnRecent = (Button) findViewById(R.id.btnRecent);
+		initSideDrawer(savedInstanceState);
 
-		btnRecent.setOnClickListener(new View.OnClickListener() {
+		mDatasource = new RecentActivityDataSource(MainActivity.this);
+		mDatasource.open();
 
-			@Override
-			public void onClick(View v) {
-				// TODO Auto-generated method stub
-				startActivity(new Intent(MainActivity.this,
-						RecentActivity.class));
+		mListview = (ListView) findViewById(R.id.listview);
+
+		mFeedList = mDatasource.getAllFeeds();
+		mAdapter = new RecentActivityAdapter(MainActivity.this, mFeedList);
+		
+		mListview.setAdapter(mAdapter);
+
+		registerForContextMenu(mListview);
+	}
+
+	private void initSideDrawer(Bundle savedInstanceState) {
+
+		mTitle = mDrawerTitle = getTitle();
+
+		mTitle = mDrawerTitle = getTitle();
+		mSidePanelTitles = getResources().getStringArray( R.array.sidepanel_array);
+		mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+		mDrawerList = (ListView) findViewById(R.id.left_drawer);
+
+		// set a custom shadow that overlays the main content when the drawer
+		// opens
+		mDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow,
+				GravityCompat.START);
+		// set up the drawer's list view with items and click listener
+		mDrawerList.setAdapter(new ArrayAdapter<String>(this,
+				R.layout.drawer_list_item, mSidePanelTitles));
+		mDrawerList.setOnItemClickListener(new DrawerItemClickListener());
+
+		// enable ActionBar app icon to behave as action to toggle nav drawer
+		getActionBar().setDisplayHomeAsUpEnabled(true);
+		getActionBar().setHomeButtonEnabled(true);
+
+		// ActionBarDrawerToggle ties together the the proper interactions
+		// between the sliding drawer and the action bar app icon
+		mDrawerToggle = new ActionBarDrawerToggle(this, /* host Activity */
+		mDrawerLayout, /* DrawerLayout object */
+		R.drawable.ic_drawer, /* nav drawer image to replace 'Up' caret */
+		R.string.drawer_open, /* "open drawer" description for accessibility */
+		R.string.drawer_close /* "close drawer" description for accessibility */
+		) {
+			public void onDrawerClosed(View view) {
+				getActionBar().setTitle(mTitle);
+				invalidateOptionsMenu(); // creates call to
+											// onPrepareOptionsMenu()
 			}
-		});
+
+			public void onDrawerOpened(View drawerView) {
+				getActionBar().setTitle(mDrawerTitle);
+				invalidateOptionsMenu(); // creates call to
+											// onPrepareOptionsMenu()
+			}
+		};
+		mDrawerLayout.setDrawerListener(mDrawerToggle);
+
+		if (savedInstanceState == null) {
+			selectItem(0);
+		}
+
+		// Set the drawer toggle as the DrawerListener
+		mDrawerLayout.setDrawerListener(mDrawerToggle);
+	}
+
+	private class DrawerItemClickListener implements
+			ListView.OnItemClickListener {
+		@Override
+		public void onItemClick(AdapterView parent, View view, int position, long id) {
+			selectItem(position);
+		}
+	}
+
+	/** Swaps fragments in the main content view */
+	private void selectItem(int position) {
+		// Highlight the selected item, update the title, and close the drawer
+		mDrawerList.setItemChecked(position, true);
+		setTitle(mSidePanelTitles[position]);
+		mDrawerLayout.closeDrawer(mDrawerList);
+		
+		// Do some Action for events
+	}
+
+	@Override
+	public void setTitle(CharSequence title) {
+		mTitle = title;
+		getActionBar().setTitle(mTitle);
+	}
+
+	@Override
+	protected void onPostCreate(Bundle savedInstanceState) {
+		super.onPostCreate(savedInstanceState);
+		// Sync the toggle state after onRestoreInstanceState has occurred.
+		mDrawerToggle.syncState();
+	}
+
+	@Override
+	public void onConfigurationChanged(Configuration newConfig) {
+		super.onConfigurationChanged(newConfig);
+		mDrawerToggle.onConfigurationChanged(newConfig);
+	}
+
+	@Override
+	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
+		if (v.getId() == R.id.listview) {
+			AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) menuInfo;
+
+			String[] menuItems = getResources().getStringArray(R.array.listitem_menu_array);
+			for (int i = 0; i < menuItems.length; i++) {
+				menu.add(Menu.NONE, i, i, menuItems[i]);
+			}
+		}
+	}
+
+	@Override
+	public boolean onContextItemSelected(MenuItem item) {
+		AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
+
+		int menuItemIndex = item.getItemId();
+
+		String[] menuItems = getResources().getStringArray(R.array.listitem_menu_array);
+
+		String menuItemName = menuItems[menuItemIndex];
+
+		if (menuItemName.equalsIgnoreCase("Share")) {
+			shareIt(mFeedList.get(info.position).getTitle(), 
+					mFeedList.get(info.position).getContent());
+		}
+
+		// list item name :: info.position
+
+		return true;
+	}
+
+	private void shareIt(String title, String content) {
+		// sharing implementation here
+		Intent sharingIntent = new Intent(android.content.Intent.ACTION_SEND);
+		sharingIntent.setType("text/plain");
+		sharingIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, "Emrald AR App - " + title);
+		sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, content);
+		startActivity(Intent.createChooser(sharingIntent, "Share via"));
 	}
 
 	@Override
@@ -56,29 +218,18 @@ public class MainActivity extends Activity {
 			String scanFormat = scanningResult.getFormatName();
 
 			if ((scanFormat != null) && scanFormat.trim().length() > 0) {
-				feildTitle.setText("" + scanFormat);
-				feildContent.setText("" + scanContent);
-
 				mDatasource = new RecentActivityDataSource(this);
 				mDatasource.open();
 
-				mDatasource.createFeed(scanFormat, scanContent);
-			}else{
-				feildTitle.setText("");
-				feildContent.setText("");
-			}
+				mFeedList.add(mDatasource.createFeed(scanFormat, scanContent));
+				
+				mAdapter.notifyDataSetChanged();
+				
+			}  
 		} else {
-			Toast toast = Toast.makeText(getApplicationContext(),
-					"No scan data received!", Toast.LENGTH_SHORT);
+			Toast toast = Toast.makeText(getApplicationContext(), "No scan data received!", Toast.LENGTH_SHORT);
 			toast.show();
 		}
-	}
-
-	@Override
-	protected void onPause() {
-		if (mDatasource != null)
-			mDatasource.close();
-		super.onPause();
 	}
 
 	@Override
@@ -87,22 +238,52 @@ public class MainActivity extends Activity {
 		getMenuInflater().inflate(R.menu.main, menu);
 		return true;
 	}
-	
+
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-	    // Handle presses on the action bar items
-	    switch (item.getItemId()) {
-	        case R.id.action_scan_qr:
-	        	IntentIntegrator scanIntegrator = new IntentIntegrator(
-						MainActivity.this);
-				scanIntegrator.initiateScan();
-	            return true;
-	        case R.id.action_settings:
-	            //openSettings();
-	            return true;
-	        default:
-	            return super.onOptionsItemSelected(item);
-	    }
+		// Pass the event to ActionBarDrawerToggle, if it returns
+		// true, then it has handled the app icon touch event
+		if (mDrawerToggle.onOptionsItemSelected(item)) {
+			return true;
+		}
+
+		// Handle presses on the action bar items
+		switch (item.getItemId()) {
+		case R.id.action_scan_qr:
+			IntentIntegrator scanIntegrator = new IntentIntegrator(
+					MainActivity.this);
+			scanIntegrator.initiateScan();
+			return true;
+		case R.id.action_settings:
+			// openSettings();
+			return true;
+		default:
+			return super.onOptionsItemSelected(item);
+		}
+	}
+
+	/* Called whenever we call invalidateOptionsMenu() */
+	@Override
+	public boolean onPrepareOptionsMenu(Menu menu) {
+		// If the nav drawer is open, hide action items related to the content
+		// view
+		boolean drawerOpen = mDrawerLayout.isDrawerOpen(mDrawerList);
+		// menu.findItem(R.id.action_websearch).setVisible(!drawerOpen);
+		return super.onPrepareOptionsMenu(menu);
+	}
+
+	@Override
+	protected void onResume() {
+		if (mDatasource != null)
+			mDatasource.open();
+		super.onResume();
+	}
+
+	@Override
+	protected void onPause() {
+		if (mDatasource != null)
+			mDatasource.close();
+		super.onPause();
 	}
 
 }

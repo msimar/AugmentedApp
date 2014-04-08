@@ -8,7 +8,7 @@
     
     <!-- Search, should appear as action button -->
     <item android:id="@+id/action_scan_qr"
-          android:icon="@drawable/scan_barcode64"
+          android:icon="@drawable/scan_barcode64_grey"
           android:title="@string/action_scan_qr"
           android:showAsAction="always" />
 
