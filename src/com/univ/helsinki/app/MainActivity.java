@@ -14,9 +14,11 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
@@ -79,8 +81,6 @@ public class MainActivity extends Activity {
 		
 		mAdapter = new RecentActivityAdapter(MainActivity.this, mFeedList);
 		
-		mListview.setAdapter(mAdapter);
-
 		registerForContextMenu(mListview);
 		
 		// Show contextview on item click
@@ -92,13 +92,18 @@ public class MainActivity extends Activity {
 				adapter.showContextMenuForChild(view);
 			}
 		});
+		
+		LayoutInflater inflater = getLayoutInflater();
+		ViewGroup header = (ViewGroup)inflater.inflate(R.layout.listview_header, mListview, false);
+		mListview.addHeaderView(header, null, false);
+		
+		mListview.setAdapter(mAdapter);
 	}
 
 	private void initSideDrawer(Bundle savedInstanceState) {
 
 		mTitle = mDrawerTitle = getTitle();
 
-		mTitle = mDrawerTitle = getTitle();
 		mSidePanelTitles = getResources().getStringArray( R.array.sidepanel_array);
 		mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
 		mDrawerList = (ListView) findViewById(R.id.left_drawer);
@@ -158,7 +163,7 @@ public class MainActivity extends Activity {
 	private void selectItem(int position) {
 		// Highlight the selected item, update the title, and close the drawer
 		mDrawerList.setItemChecked(position, true);
-		setTitle(mSidePanelTitles[position]);
+		//setTitle(mSidePanelTitles[position]);
 		mDrawerLayout.closeDrawer(mDrawerList);
 		
 		// Do some Action for events
