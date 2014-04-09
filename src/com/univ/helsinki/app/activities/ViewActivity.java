@@ -72,7 +72,7 @@ public class ViewActivity extends Activity implements OnClickListener {
 			
 			tvTitle.setText(mFeedList.get(mListItemIndex).getTitle());
 			tvContent.setText(mFeedList.get(mListItemIndex).getContent());
-			tvTimestamp.setText(mFeedList.get(mListItemIndex).getUpdatedTimestamp());
+			tvTimestamp.setText( " Visited on " + mFeedList.get(mListItemIndex).getUpdatedTimestamp());
 		}
 		
 		ActionBar actionBar = getActionBar();

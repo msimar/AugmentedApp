@@ -9,7 +9,7 @@
     <dimen name="card_outer_padding_bottom">1dp</dimen>
     <dimen name="card_outer_padding_horizontal">8dp</dimen>
     
-    <dimen name="card_inner_padding_vertical">8dp</dimen>
+    <dimen name="card_inner_padding_vertical">12dp</dimen>
     <dimen name="card_inner_padding_left">10dp</dimen>
     <dimen name="card_inner_padding_right">5dp</dimen>
     
