@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <color name="card_pressed">#ebebeb</color>
+    <color name="card_pressed_header">#d6d6d6</color>
+    <color name="header_button_default">#494949</color>
+    <color name="card_gray">#e5e5e5</color>
+    
+<<<<<<< HEAD
+    <color name="activity_bkground">#708090</color>
+    
+=======
+    <color name="holo_light_blue">#33B5E5</color>
+    <color name="black">#000000</color>
+    <color name="white">#FFFFFF</color>
+    <color name="gray">#575757</color>
+    <color name="light_gray">#D3D3D3</color>
+    <color name="semi_transparent_black">#C8000000</color>
+>>>>>>> 4b8ce05f86187eeb82483ab37a4bd88dfd398da7
+
+</resources>

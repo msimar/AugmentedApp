@@ -27,5 +27,17 @@
     <string name="drawer_close">Close navigation drawer</string>
     <string name="action_websearch">Web search</string>
     <string name="app_not_available">Sorry, there\'s no web browser available</string>
+    
+    <string name="menu_back">About</string>
+    <string name="menu_extended_tracking">Extended Tracking</string>
+    <string name="menu_flash">Flash</string>
+    <string name="menu_flash_error_on">Unable to turn on flash</string>
+    <string name="menu_flash_error_off">Unable to turn off flash</string>
+    <string name="menu_contAutofocus">Autofocus</string>
+    <string name="menu_contAutofocus_error_on">Unable to activate Continuous Auto-Focus</string>
+    <string name="menu_contAutofocus_error_off">Unable to deactivate Continuous Auto-Focus</string>
+    <string name="menu_camera">CAMERA</string>
+    <string name="menu_camera_front">Front</string>
+    <string name="menu_camera_back">Rear</string>
 
 </resources>
