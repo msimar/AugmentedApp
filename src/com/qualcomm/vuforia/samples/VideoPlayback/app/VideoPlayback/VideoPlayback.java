@@ -416,7 +416,7 @@ public class VideoPlayback extends Activity implements
     
     // The final call you receive before your activity is destroyed.
     protected void onDestroy()
-    {
+    {  
         Log.d(LOGTAG, "onDestroy");
         super.onDestroy();
         
@@ -440,9 +440,13 @@ public class VideoPlayback extends Activity implements
         mTextures.clear();
         mTextures = null;
         
+        
+        
         System.gc();
     }
     
+    public static final String EXTRAS_AR_TITLE = "title";
+    public static final String EXTRAS_AR_CONTENT = "content";
     
     // Pause all movies except one
     // if the value of 'except' is -1 then
@@ -469,6 +473,12 @@ public class VideoPlayback extends Activity implements
     // Do not exit immediately and instead show the startup screen
     public void onBackPressed()
     {
+    	Intent data = new Intent(VideoPlayback.this, com.univ.helsinki.app.MainActivity.class);
+        data.putExtra(EXTRAS_AR_TITLE, "tile......");
+        data.putExtra(EXTRAS_AR_TITLE, "content....");
+        
+        this.setResult(Activity.RESULT_OK, data);
+        
         pauseAll(-1);
         super.onBackPressed();
     }

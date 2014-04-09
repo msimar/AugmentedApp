@@ -30,6 +30,7 @@ import android.widget.Toast;
 
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
+import com.qualcomm.vuforia.samples.VideoPlayback.app.VideoPlayback.VideoPlayback;
 import com.univ.helsinki.app.activities.ViewActivity;
 import com.univ.helsinki.app.adapter.RecentActivityAdapter;
 import com.univ.helsinki.app.core.Feed;
@@ -38,6 +39,8 @@ import com.univ.helsinki.app.db.RecentActivityDataSource;
 public class MainActivity extends Activity {
 	
 	static final String LOGTAG = "AugmentedApp";
+	
+	static final int ARREQCODE = 1234;
 
 	private EditText feildTitle;
 	private EditText feildContent;
@@ -167,7 +170,7 @@ public class MainActivity extends Activity {
                	Log.d(LOGTAG, "AR scan_button selected");
                	Intent intent = new Intent();
                	intent.setClassName("com.univ.helsinki.app","com.qualcomm.vuforia.samples.VideoPlayback.app.VideoPlayback.VideoPlayback");
-               	startActivity(intent);
+               	startActivityForResult(intent, ARREQCODE);
         	}
         	else
         	{
@@ -275,35 +278,67 @@ public class MainActivity extends Activity {
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode,
 			Intent intent) {
-		// TODO Auto-generated method stub
-		IntentResult scanningResult = IntentIntegrator.parseActivityResult(
-				requestCode, resultCode, intent);
-		if (scanningResult != null) {
-
-			// we have a result
-			String scanContent = scanningResult.getContents();
-			String scanFormat = scanningResult.getFormatName();
-
-			if ((scanFormat != null) && scanFormat.trim().length() > 0) {
-				
+		
+		Log.i("DEBUG", "intent : " + intent);
+		
+		switch (requestCode) {
+			case ARREQCODE:
 				if(mDatasource == null)
 					mDatasource = new RecentActivityDataSource(MainActivity.this);
 				
 				mDatasource.open();
+				
+			
+				
+				if(intent!= null ){
+					
+					String title = intent.getStringExtra(VideoPlayback.EXTRAS_AR_TITLE);
+					String content = intent.getStringExtra(VideoPlayback.EXTRAS_AR_CONTENT);
 
-				mFeedList.add(0,mDatasource.createFeed(scanFormat, scanContent));
-				
-				mAdapter.notifyDataSetChanged();
-				
-				if(mFeedList.size() > 0){
-					mListview.setVisibility(View.VISIBLE);
-					findViewById(R.id.emptystub).setVisibility(View.GONE);
+					mFeedList.add(0,mDatasource.createFeed(title, content));
+					
+					mAdapter.notifyDataSetChanged();
+					
+					if(mFeedList.size() > 0){
+						mListview.setVisibility(View.VISIBLE);
+						findViewById(R.id.emptystub).setVisibility(View.GONE);
+					}
 				}
-			}  
-		} else {
-			Toast toast = Toast.makeText(getApplicationContext(), "No scan data received!", Toast.LENGTH_SHORT);
-			toast.show();
+				break;
+			
+			default:
+
+				IntentResult scanningResult = IntentIntegrator.parseActivityResult(
+						requestCode, resultCode, intent);
+				if (scanningResult != null) {
+
+					// we have a result
+					String scanContent = scanningResult.getContents();
+					String scanFormat = scanningResult.getFormatName();
+
+					if ((scanFormat != null) && scanFormat.trim().length() > 0) {
+						
+						if(mDatasource == null)
+							mDatasource = new RecentActivityDataSource(MainActivity.this);
+						
+						mDatasource.open();
+
+						mFeedList.add(0,mDatasource.createFeed(scanFormat, scanContent));
+						
+						mAdapter.notifyDataSetChanged();
+						
+						if(mFeedList.size() > 0){
+							mListview.setVisibility(View.VISIBLE);
+							findViewById(R.id.emptystub).setVisibility(View.GONE);
+						}
+					}  
+				} else {
+					Toast toast = Toast.makeText(getApplicationContext(), "No scan data received!", Toast.LENGTH_SHORT);
+					toast.show();
+				}
+				
 		}
+
 	}
 
 	@Override
