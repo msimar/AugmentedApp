@@ -12,6 +12,7 @@ import android.os.Bundle;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
+import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.LayoutInflater;
@@ -35,6 +36,8 @@ import com.univ.helsinki.app.core.Feed;
 import com.univ.helsinki.app.db.RecentActivityDataSource;
 
 public class MainActivity extends Activity {
+	
+	static final String LOGTAG = "AugmentedApp";
 
 	private EditText feildTitle;
 	private EditText feildContent;
@@ -159,7 +162,17 @@ public class MainActivity extends Activity {
 			ListView.OnItemClickListener {
 		@Override
 		public void onItemClick(AdapterView parent, View view, int position, long id) {
-			selectItem(position);
+			
+        	if(position == 2) {
+               	Log.d(LOGTAG, "AR scan_button selected");
+               	Intent intent = new Intent();
+               	intent.setClassName("com.univ.helsinki.app","com.qualcomm.vuforia.samples.VideoPlayback.app.VideoPlayback.VideoPlayback");
+               	startActivity(intent);
+        	}
+        	else
+        	{
+        		selectItem(position);
+        	}
 		}
 	}
 

@@ -38,5 +38,9 @@
         <item name="android:background">@drawable/card_selector</item>
         <item name="android:duplicateParentState">true</item>
     </style>
+    
+    <style name="SampleAppsTheme" parent="@android:style/Theme.Light.NoTitleBar.Fullscreen">
+        <item name="android:windowNoTitle">true</item>
+    </style>
 
 </resources>
