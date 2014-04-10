@@ -3,6 +3,7 @@
 
     <string name="app_name">Emrald AR</string>
     <string name="activity_recent_name">Recent Activity</string>
+    <string name="activity_settings_name">Settings</string>
     <string name="activity_view_name">Activity View</string>
     <string name="activity_audio_name">Audio Player</string>
     
@@ -39,5 +40,14 @@
     <string name="menu_camera">CAMERA</string>
     <string name="menu_camera_front">Front</string>
     <string name="menu_camera_back">Rear</string>
+    
+    <string name="pref_send_report">Send crash reports</string>
+    <string name="pref_send_report_summary">Helps to fix bugs</string>
+    
+    <string name="pref_user_name">Emrald AR</string>
+    <string name="pref_user_name_summary">version 0.1</string>
+     
+    <string name="pref_user_profile">App Profile</string>
+    <string name="pref_update_setting">Update Settings</string>
 
 </resources>

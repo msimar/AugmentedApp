@@ -41,15 +41,12 @@ import android.widget.Toast;
 
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
-
-import com.univ.helsinki.app.activities.AudioDialog;
-
 import com.qualcomm.vuforia.samples.VideoPlayback.app.VideoPlayback.VideoPlayback;
-
+import com.univ.helsinki.app.activities.AudioDialog;
+import com.univ.helsinki.app.activities.SettingActivity;
 import com.univ.helsinki.app.activities.ViewActivity;
 import com.univ.helsinki.app.adapter.RecentActivityAdapter;
 import com.univ.helsinki.app.core.Feed;
-import com.univ.helsinki.app.db.RecentActivityDataSource;
 import com.univ.helsinki.app.db.ResourcePool;
 import com.univ.helsinki.app.util.Constant;
 
@@ -192,7 +189,11 @@ public class MainActivity extends Activity {
 		
 		// Do some Action for events
 		
-		if( position == 2 ){
+		
+		if( position == 3 ){
+	       	Intent intent = new Intent(MainActivity.this,SettingActivity.class);
+	       	startActivity(intent);
+		}else if( position == 2 ){
 			Log.d(LOGTAG, "AR scan_button selected");
 	       	Intent intent = new Intent();
 	       	intent.setClassName("com.univ.helsinki.app","com.qualcomm.vuforia.samples.VideoPlayback.app.VideoPlayback.VideoPlayback");
@@ -206,7 +207,6 @@ public class MainActivity extends Activity {
 				scanIntegrator.initiateScan();
 			}
 		}
-		
 	}
 
 	@Override

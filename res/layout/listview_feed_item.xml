@@ -3,7 +3,8 @@
 
     <RelativeLayout
         android:id="@+id/inner_frame"
-        style="@style/card_inner" >
+        style="@style/card_inner"
+        android:background="@drawable/bg_card_content"  >
 
         <TextView
             android:id="@+id/timestamp"
@@ -11,17 +12,13 @@
             android:layout_height="26dip"
             android:layout_below="@+id/content"
             android:ellipsize="marquee"
-            android:gravity="right"
+            android:gravity="left|center_vertical"
             android:singleLine="true"
             android:text="timestamp"
-            android:textSize="12sp" />
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:layout_above="@+id/timestamp"
-            android:layout_margin="2dp"
-            android:background="@android:color/darker_gray" />
+            android:textSize="12sp"
+            android:drawableLeft="@drawable/btn_timestamp_20"
+            android:drawablePadding="2dp"
+              />
 
         <TextView
             android:id="@+id/content"
@@ -30,16 +27,27 @@
             android:layout_below="@+id/title"
             android:singleLine="true"
             android:text="Description"
-            android:textSize="16sp" />
-
+            android:textSize="17sp"
+            android:layout_marginBottom="3dp"
+            android:layout_marginTop="2dp" />
+        
         <TextView
             android:id="@+id/title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
             android:text="Example application"
-            android:textColor="@android:color/secondary_text_dark"
-            android:textSize="18sp" />
+            android:textSize="20sp"
+            android:textColor="#ff8c00" 
+            android:textStyle="bold"/>
+        
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_below="@+id/title"
+            android:layout_margin="2dp"
+            android:background="@android:color/darker_gray"
+            android:layout_marginBottom="3dp" />
     </RelativeLayout>
 
 </LinearLayout>
