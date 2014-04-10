@@ -77,7 +77,7 @@ public class AudioDialog extends Dialog implements OnPreparedListener,
             mediaController.removeAllViews();
             mediaPlayer = null;
         }
-		Toast.makeText(mContext, "onStop", Toast.LENGTH_SHORT).show();
+		//Toast.makeText(mContext, "onStop", Toast.LENGTH_SHORT).show();
 		super.onStop();
 	}
 
@@ -180,5 +180,12 @@ public class AudioDialog extends Dialog implements OnPreparedListener,
         }
 		//Toast.makeText(mContext, "onDismiss", Toast.LENGTH_SHORT).show();
 		dialog.dismiss();
+	}
+	
+	@Override
+	public void onBackPressed() {
+		// TODO Auto-generated method stub
+		super.onBackPressed();
+		this.dismiss();
 	}
 }
