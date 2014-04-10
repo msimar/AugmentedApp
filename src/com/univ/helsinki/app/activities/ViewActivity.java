@@ -31,16 +31,13 @@ import com.univ.helsinki.app.MainActivity;
 import com.univ.helsinki.app.R;
 import com.univ.helsinki.app.core.Feed;
 import com.univ.helsinki.app.db.RecentActivityDataSource;
+import com.univ.helsinki.app.db.ResourcePool;
 import com.univ.helsinki.app.util.Constant;
 
 public class ViewActivity extends Activity implements OnClickListener {
 
 	public static final String EXTRAS_ROW_ID = "row_id";
 
-	private RecentActivityDataSource mDatasource;
-	
-	private List<Feed> mFeedList;
-	
 	private TextView tvTitle;
 	private TextView tvContent;
 	private TextView tvTimestamp;
@@ -79,18 +76,17 @@ public class ViewActivity extends Activity implements OnClickListener {
 		} else {
 			mListItemIndex = extras.getInt(EXTRAS_ROW_ID);
 
-			mDatasource = new RecentActivityDataSource(ViewActivity.this);
-			mDatasource.open();
-
-			mFeedList = mDatasource.getAllFeeds();
+			ResourcePool.getInstance().inti(this);
+			List<Feed> mFeedList = ResourcePool.getInstance().getAllFeed();
 			
-			int indexOfComma = mFeedList.get(mListItemIndex).getContent().indexOf(',');
+//			int indexOfComma = mFeedList.get(mListItemIndex).getContent().indexOf(',');
 			
-			if( indexOfComma != -1 ){
-				tvTitle.setText(mFeedList.get(mListItemIndex).getContent().substring(0,indexOfComma));
-				tvContent.setText(mFeedList.get(mListItemIndex).getContent());
-				tvTimestamp.setText( " Visited on " + mFeedList.get(mListItemIndex).getUpdatedTimestamp());
-			}else{
+//			if( indexOfComma != -1 ){
+//				tvTitle.setText(mFeedList.get(mListItemIndex).getContent().substring(0,indexOfComma));
+//				tvContent.setText(mFeedList.get(mListItemIndex).getContent());
+//				tvTimestamp.setText( " Visited on " + mFeedList.get(mListItemIndex).getUpdatedTimestamp());
+//			}else
+			{
 				tvTitle.setText(mFeedList.get(mListItemIndex).getTitle());
 				tvContent.setText(mFeedList.get(mListItemIndex).getContent());
 				tvTimestamp.setText( " Visited on " + mFeedList.get(mListItemIndex).getUpdatedTimestamp());
@@ -103,15 +99,11 @@ public class ViewActivity extends Activity implements OnClickListener {
 
 	@Override
 	protected void onResume() {
-		if (mDatasource != null)
-			mDatasource.open();
 		super.onResume();
 	}
 
 	@Override
 	protected void onPause() {
-		if (mDatasource != null)
-			mDatasource.close();
 		super.onPause();
 	}
 	
@@ -131,14 +123,9 @@ public class ViewActivity extends Activity implements OnClickListener {
 			shareIt(tvTitle.getText().toString(), tvContent.getText().toString());
 		}break;
 		case R.id.viewDelete:{
-			long id = mFeedList.get(mListItemIndex).getId();
 			
-			if(mDatasource != null){
-				mDatasource.delete(id);
-			}
-			
-			mFeedList.remove(mListItemIndex);
-			
+			ResourcePool.getInstance().removeFeed(mListItemIndex);
+			 
 			this.finish();
 			
 		}break;
@@ -157,7 +144,7 @@ public class ViewActivity extends Activity implements OnClickListener {
 			
 		}break;
 		case R.id.viewInfo:{
-			String inURL = "https://en.wikipedia.org/wiki/" + mFeedList.get(mListItemIndex).getTitle();
+			String inURL = "https://en.wikipedia.org/wiki/" + tvTitle.getText().toString();
 		    
 			Intent browse = new Intent( Intent.ACTION_VIEW , Uri.parse( inURL ) );
 			startActivity( browse );

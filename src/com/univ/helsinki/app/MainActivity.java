@@ -50,6 +50,7 @@ import com.univ.helsinki.app.activities.ViewActivity;
 import com.univ.helsinki.app.adapter.RecentActivityAdapter;
 import com.univ.helsinki.app.core.Feed;
 import com.univ.helsinki.app.db.RecentActivityDataSource;
+import com.univ.helsinki.app.db.ResourcePool;
 import com.univ.helsinki.app.util.Constant;
 
 public class MainActivity extends Activity {
@@ -61,8 +62,6 @@ public class MainActivity extends Activity {
 	private EditText feildTitle;
 	private EditText feildContent;
 	private Button btnRecent;
-
-	private RecentActivityDataSource mDatasource;
 
 	private DrawerLayout mDrawerLayout;
 	private ListView mDrawerList;
@@ -76,9 +75,9 @@ public class MainActivity extends Activity {
 	private ListView mListview;
 	private RecentActivityAdapter mAdapter;
 	
-	private List<Feed> mFeedList;
-	
 	private MediaPlayer mPlayer;
+	
+	private boolean isBootstrap = true;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -89,20 +88,19 @@ public class MainActivity extends Activity {
 
 		initSideDrawer(savedInstanceState);
 
-		mDatasource = new RecentActivityDataSource(MainActivity.this);
-		mDatasource.open();
 
 		mListview = (ListView) findViewById(R.id.listview);
 		mListview.setVisibility(View.INVISIBLE);
 
-		mFeedList = mDatasource.getAllFeeds();
+		ResourcePool.getInstance().inti(this);
+		List<Feed> mFeedList = ResourcePool.getInstance().getAllFeed();
 		
 		if(mFeedList.size() > 0){
 			mListview.setVisibility(View.VISIBLE);
 			findViewById(R.id.emptystub).setVisibility(View.GONE);
 		}
 		
-		mAdapter = new RecentActivityAdapter(MainActivity.this, mFeedList);
+		mAdapter = new RecentActivityAdapter(MainActivity.this);
 		
 		registerForContextMenu(mListview);
 		
@@ -181,17 +179,7 @@ public class MainActivity extends Activity {
 			ListView.OnItemClickListener {
 		@Override
 		public void onItemClick(AdapterView parent, View view, int position, long id) {
-			
-        	if(position == 2) {
-               	Log.d(LOGTAG, "AR scan_button selected");
-               	Intent intent = new Intent();
-               	intent.setClassName("com.univ.helsinki.app","com.qualcomm.vuforia.samples.VideoPlayback.app.VideoPlayback.VideoPlayback");
-               	startActivityForResult(intent, ARREQCODE);
-        	}
-        	else
-        	{
-        		selectItem(position);
-        	}
+        	selectItem(position);
 		}
 	}
 
@@ -203,6 +191,22 @@ public class MainActivity extends Activity {
 		mDrawerLayout.closeDrawer(mDrawerList);
 		
 		// Do some Action for events
+		
+		if( position == 2 ){
+			Log.d(LOGTAG, "AR scan_button selected");
+	       	Intent intent = new Intent();
+	       	intent.setClassName("com.univ.helsinki.app","com.qualcomm.vuforia.samples.VideoPlayback.app.VideoPlayback.VideoPlayback");
+	       	startActivityForResult(intent, ARREQCODE);
+		}else if( position == 1 ){
+			IntentIntegrator scanIntegrator = new IntentIntegrator(MainActivity.this);
+			scanIntegrator.initiateScan();
+		}else if( position == 0 ){
+			if(!isBootstrap){
+				IntentIntegrator scanIntegrator = new IntentIntegrator(MainActivity.this);
+				scanIntegrator.initiateScan();
+			}
+		}
+		
 	}
 
 	@Override
@@ -247,21 +251,16 @@ public class MainActivity extends Activity {
 		String menuItemName = menuItems[menuItemIndex];
 
 		if (menuItemName.equalsIgnoreCase("Share")) {
-			shareIt(mFeedList.get(info.position).getTitle(), 
-					mFeedList.get(info.position).getContent());
+			shareIt(ResourcePool.getInstance().getAllFeed().get(info.position).getTitle(), 
+					ResourcePool.getInstance().getAllFeed().get(info.position).getContent());
 		}else if (menuItemName.equalsIgnoreCase("delete")) {
 			
-			long id = mFeedList.get(info.position).getId();
-			
-			if(mDatasource != null){
-				mDatasource.delete(id);
-			}
-			
-			mFeedList.remove(info.position);
-			mAdapter.notifyDataSetChanged();
+			ResourcePool.getInstance().removeFeed(info.position);
+			 
+			mAdapter.notifyDataChanged();
 			
 		}else if (menuItemName.contains("More")) {
-			String inURL = "https://en.wikipedia.org/wiki/" + mFeedList.get(info.position).getTitle();
+			String inURL = "https://en.wikipedia.org/wiki/" + ResourcePool.getInstance().getAllFeed().get(info.position).getTitle();
 			    
 			Intent browse = new Intent( Intent.ACTION_VIEW , Uri.parse( inURL ) );
 			startActivity( browse );
@@ -301,23 +300,16 @@ public class MainActivity extends Activity {
 		
 		switch (requestCode) {
 			case ARREQCODE:
-				if(mDatasource == null)
-					mDatasource = new RecentActivityDataSource(MainActivity.this);
-				
-				mDatasource.open();
-				
-			
 				
 				if(intent!= null ){
 					
 					String title = intent.getStringExtra(VideoPlayback.EXTRAS_AR_TITLE);
 					String content = intent.getStringExtra(VideoPlayback.EXTRAS_AR_CONTENT);
 
-					mFeedList.add(0,mDatasource.createFeed(title, content));
+					ResourcePool.getInstance().addFeed(0, ResourcePool.getInstance().createFeed(title, content));
+					mAdapter.notifyDataChanged();
 					
-					mAdapter.notifyDataSetChanged();
-					
-					if(mFeedList.size() > 0){
+					if(ResourcePool.getInstance().getAllFeed().size() > 0){
 						mListview.setVisibility(View.VISIBLE);
 						findViewById(R.id.emptystub).setVisibility(View.GONE);
 					}
@@ -326,8 +318,7 @@ public class MainActivity extends Activity {
 			
 			default:
 
-				IntentResult scanningResult = IntentIntegrator.parseActivityResult(
-						requestCode, resultCode, intent);
+				IntentResult scanningResult = IntentIntegrator.parseActivityResult(requestCode, resultCode, intent);
 				if (scanningResult != null) {
 
 					// we have a result
@@ -336,16 +327,13 @@ public class MainActivity extends Activity {
 
 					if ((scanFormat != null) && scanFormat.trim().length() > 0) {
 						
-						if(mDatasource == null)
-							mDatasource = new RecentActivityDataSource(MainActivity.this);
+						int indexOfComma = scanContent.indexOf(',');
 						
-						mDatasource.open();
-
-						mFeedList.add(0,mDatasource.createFeed(scanFormat, scanContent));
+						Feed feed = ResourcePool.getInstance().createFeed(scanContent.substring(0,indexOfComma), scanContent);
+						ResourcePool.getInstance().addFeed(0, feed );
+						mAdapter.notifyDataChanged();
 						
-						mAdapter.notifyDataSetChanged();
-						
-						if(mFeedList.size() > 0){
+						if(ResourcePool.getInstance().getAllFeed().size() > 0){
 							mListview.setVisibility(View.VISIBLE);
 							findViewById(R.id.emptystub).setVisibility(View.GONE);
 						}
@@ -377,8 +365,7 @@ public class MainActivity extends Activity {
 		// Handle presses on the action bar items
 		switch (item.getItemId()) {
 		case R.id.action_scan_qr:
-			IntentIntegrator scanIntegrator = new IntentIntegrator(
-					MainActivity.this);
+			IntentIntegrator scanIntegrator = new IntentIntegrator(MainActivity.this);
 			scanIntegrator.initiateScan();
 			return true;
 		case R.id.action_settings:
@@ -401,15 +388,12 @@ public class MainActivity extends Activity {
 
 	@Override
 	protected void onResume() {
-		if (mDatasource != null)
-			mDatasource.open();
+		mAdapter.notifyDataChanged();
 		super.onResume();
 	}
 
 	@Override
 	protected void onPause() {
-		if (mDatasource != null)
-			mDatasource.close();
 		super.onPause();
 	}
 	
@@ -418,6 +402,7 @@ public class MainActivity extends Activity {
 		if(null != mPlayer){
 			mPlayer.release(); 
 		}
+		ResourcePool.getInstance().destroy();
 		super.onDestroy();
 	}
 	

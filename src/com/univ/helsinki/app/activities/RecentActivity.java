@@ -31,8 +31,7 @@ public class RecentActivity extends Activity {
 		final ListView listview = (ListView) findViewById(R.id.listview);
 
 		listview.setAdapter(
-				new RecentActivityAdapter(RecentActivity.this, 
-						mDatasource.getAllFeeds()));
+				new RecentActivityAdapter(RecentActivity.this));
 		
 		registerForContextMenu(listview);
 	}

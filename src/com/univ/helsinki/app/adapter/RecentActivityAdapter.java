@@ -11,14 +11,16 @@ import android.widget.TextView;
 
 import com.univ.helsinki.app.R;
 import com.univ.helsinki.app.core.Feed;
+import com.univ.helsinki.app.db.ResourcePool;
 
 public class RecentActivityAdapter extends BaseAdapter {
 
 	private List<Feed> mFeedList;
 	private LayoutInflater mInflater;
 
-	public RecentActivityAdapter(Context context, List<Feed> feedList) {
-		this.mFeedList = feedList;
+	public RecentActivityAdapter(Context context) {
+		
+		this.mFeedList = ResourcePool.getInstance().getAllFeed();
 
 		this.mInflater = (LayoutInflater) context
 				.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -73,5 +75,10 @@ public class RecentActivityAdapter extends BaseAdapter {
 	    public TextView tvTitle;
 	    public TextView tvContent;
 	    public TextView tvTimestamp;
+	}
+	
+	public void notifyDataChanged(){
+		this.mFeedList = ResourcePool.getInstance().getAllFeed();
+		this.notifyDataSetChanged();
 	}
 }
